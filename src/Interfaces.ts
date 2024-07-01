@@ -1,5 +1,3 @@
-import { Events } from "./Enums";
-
 export namespace Interfaces {
     export type Severity = "common" | "suspicious" | "fault";
     export type OpCodes = "ready" | "playerUpdate" | "stats" | "event";
@@ -10,7 +8,7 @@ export namespace Interfaces {
         "TrackStuckEvent" | 
         "TrackExceptionEvent" |
         "WebsocketClosedEvent";
-    export type TrackEndReasons = "finished" | "loadFailed" | "stopped" | "replaced" | "cleanup";
+    export type EndReasons = "finished" | "loadFailed" | "stopped" | "replaced" | "cleanup";
 
     export interface NodeInfo {
         url: string;
@@ -69,7 +67,18 @@ export namespace Interfaces {
             type: EventTypes;
         }
 
-        export type Lavalink = typeof Events[keyof typeof Events];
+        type NodeEvents = 
+            "lavalinkNodeReady";
+        type TrackEvents = 
+            "lavalinkTrackStart" |
+            "lavalinkTrackEnd" |
+            "lavalinkTrackError";
+        type EventHandler = (...args: any[]) => void;
+        
+        export interface EventArgs extends Record<NodeEvents & TrackEvents, EventHandler> {
+            'lavalinkNodeReady': (node: NodeInfo) => void
+        }
+
         export namespace Track {
             export interface TrackStart extends IEventPacket {
                 type: "TrackStartEvent";
@@ -79,7 +88,7 @@ export namespace Interfaces {
             export interface TrackEnd extends IEventPacket {
                 type: "TrackEndEvent";
                 track: API.Track;
-                reason: TrackEndReasons;
+                reason: EndReasons;
             }
 
             export interface TrackException extends IEventPacket {
@@ -102,10 +111,6 @@ export namespace Interfaces {
                 reason: string;
                 byRemote: boolean;
             }
-        }
-
-        export interface LavaManagerEvents extends Record<Interfaces.Events.Lavalink, Function> {
-            'lavalinkNodeReady': (node: NodeInfo) => void
         }
     }
 }
