@@ -10,14 +10,16 @@ export class LavaConnection {
 
     protected readonly methods = new Array<Interfaces.ConnectionPacketMethods>();
     protected readonly connectionInfo: Interfaces.ConnectionData;
-    protected readonly href: URL;
+    protected readonly connectionUrl: URL;
     public constructor(connectionInfo: Interfaces.ConnectionData) {
         this.connectionInfo = connectionInfo;
-        this.href = LavaConnection.getURLFromInfo(connectionInfo)
+        this.connectionUrl = LavaConnection.getURLFromInfo(connectionInfo)
     }
 
     public get isConnected() { return this.#connected }
-    public get isSecure() { return LavaConnection.isSecure(this.href.protocol) }
+    public get isSecure() { return LavaConnection.isSecure(this.connectionUrl.protocol) }
+    public get url() { return this.connectionUrl.toString() }
+    public get username() { return this.connectionInfo.username }
 
     static getURLFromInfo(connectionInfo: Interfaces.ConnectionData) {
         if ('url' in connectionInfo) {
@@ -55,7 +57,7 @@ export class LavaConnection {
         }
     }
 
-    public AddMethod(methods: Interfaces.ConnectionPacketMethods) {
+    public addMethods(methods: Interfaces.ConnectionPacketMethods) {
         this.methods.push(methods);
     }
 
@@ -67,7 +69,7 @@ export class LavaConnection {
             headers['Session-Id'] = this.#sessionId;
         }
 
-        this.#net = new WebSocket(this.href, { headers });
+        this.#net = new WebSocket(this.connectionUrl, { headers });
         this.#net.once('open', this.onInternalOpen.bind(this));
         this.#net.once('close', this.onInternalClose.bind(this));
         this.#net.once('error', this.onInternalError.bind(this));

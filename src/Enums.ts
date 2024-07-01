@@ -18,7 +18,6 @@ export enum EventTypes {
     TrackEnd = "TrackEndEvent",
     TrackStuck = "TrackStuckEvent",
     TrackException = "TrackExceptionEvent",
-    TrackError = EventTypes.TrackException,
     WebsocketClosed = "WebsocketClosedEvent"
 }
 
@@ -37,12 +36,25 @@ export enum EndReasons {
     LoadFailed = "loadFailed"
 }
 
-export enum LavalinkEvents {
+export enum Events {
     NodeReady = "lavalinkNodeReady",
     // NodeConnecting = "lavalinkNodeConnecting",
     // NodeDisconnected = "lavalinkNodeDisconnected",
 
-    // TrackStart = "lavalinkTrackStart",
-    // TrackEnd = "lavalinkTrackEnd",
-    // TrackError = "lavalinkTrackError"
+    TrackStart = "lavalinkTrackStart",
+    TrackEnd = "lavalinkTrackEnd",
+    TrackError = "lavalinkTrackError"
+}
+
+export enum Filters {
+    Volume = "volume",
+    Equalizer = "equalizer",
+    Karaoke = "karaoke",
+    TimeScale = "timescale",
+    Tremolo = "tremolo",
+    Vibrato = "vibrato",
+    Rotation = "rotation",
+    Distortion = "distortion",
+    ChannelMix = "channelMix",
+    LowPass = "lowPass"
 }
