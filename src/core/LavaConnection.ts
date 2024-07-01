@@ -8,20 +8,22 @@ export class LavaConnection {
     #connected: boolean;
     #sessionId: string;
 
-    protected readonly methods = new Array<Interfaces.ConnectionPacketMethods>();
-    protected readonly connectionInfo: Interfaces.ConnectionData;
+    protected readonly methods = new Array<Interfaces.Features.ConnectionLibraryMethods>();
+    protected readonly connectionInfo: Interfaces.Features.ConnectionData;
     protected readonly connectionUrl: URL;
-    public constructor(connectionInfo: Interfaces.ConnectionData) {
+    protected readonly protocolSecure: boolean
+    public constructor(connectionInfo: Interfaces.Features.ConnectionData) {
         this.connectionInfo = connectionInfo;
-        this.connectionUrl = LavaConnection.getURLFromInfo(connectionInfo)
+        this.connectionUrl = LavaConnection.getURLFromInfo(connectionInfo);
+        this.protocolSecure = LavaConnection.isSecure(this.connectionUrl.protocol);
     }
 
     public get isConnected() { return this.#connected }
-    public get isSecure() { return LavaConnection.isSecure(this.connectionUrl.protocol) }
+    public get isSecure() { return this.protocolSecure }
     public get url() { return this.connectionUrl.toString() }
     public get username() { return this.connectionInfo.username }
 
-    static getURLFromInfo(connectionInfo: Interfaces.ConnectionData) {
+    static getURLFromInfo(connectionInfo: Interfaces.Features.ConnectionData) {
         if ('url' in connectionInfo) {
             const url = new URL(connectionInfo.url);
             url.protocol = 
@@ -48,21 +50,22 @@ export class LavaConnection {
         return false;
     }
 
-    static headers(info: Interfaces.ConnectionData, userId: string) {
+    static headers(info: Interfaces.Features.ConnectionData) {
         return {
             'Authorization': info.password,
-            'User-Id': userId,
+            'User-Id': '',
             'Client-Name': '',
             'Session-Id': ''
         }
     }
 
-    public addMethods(methods: Interfaces.ConnectionPacketMethods) {
+    public addMethods(methods: Interfaces.Features.ConnectionLibraryMethods) {
         this.methods.push(methods);
     }
 
     public Connect(userId: string) {
-        const headers = LavaConnection.headers(this.connectionInfo, userId);
+        const headers = LavaConnection.headers(this.connectionInfo);
+        headers['User-Id'] = userId;
         headers['Client-Name'] = `Client(${userId})`;
         
         if (this.#sessionId) {

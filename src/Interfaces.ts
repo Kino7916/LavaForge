@@ -17,66 +17,10 @@ export namespace Interfaces {
         username: string;
         connected: boolean;
     }
+}
 
-    export interface VoiceState {
-        token: string;
-        endpoint: string;
-        sessionId: string;
-    }
-        
-    export interface PlayerState {
-        time: number;
-        position: number;
-        connected: boolean;
-        ping: number;
-    }
 
-    export interface Memory {
-        free: number;
-        used: number;
-        allocated: number;
-        reserved: number;
-    }
-    
-    export interface CPU {
-        cores: number;
-        systemLoad: number;
-        lavalinkLoad: number;
-    }
-    
-    export interface FrameStats {
-        sent: number;
-        dulled: number;
-        deficit: number;
-    }
-
-    export interface Track<PluginInfo = unknown, UserData = unknown> {
-        encoded: string;
-        info: TrackInfo;
-        pluginInfo: PluginInfo;
-        userData: UserData;
-    }
-
-    export interface TrackInfo {
-        isrc: string | null;
-        identifier: string;
-        uri: string;
-        title: string;
-        author: string;
-        length: number;
-        position: number;
-        artworkUrl: string;
-        sourceName: string;
-        isStream: number;
-        isSeekable: boolean;
-    }
-
-    export interface Exception {
-        message: string | null;
-        severity: Severity;
-        cause: string;
-    }
-
+export namespace Interfaces {
     export namespace Packets {
         export type IncomingPacket = ReadyPacket | PlayerUpdatePacket | StatsPacket | EventPacket;
         export interface IPacket { op: OpCodes }
@@ -88,7 +32,7 @@ export namespace Interfaces {
 
         export interface PlayerUpdatePacket extends IPacket {
             op: "playerUpdate";
-            state: Interfaces.PlayerState;
+            state: Interfaces.API.PlayerState;
         }
 
         export interface StatsPacket extends IPacket {
@@ -97,9 +41,9 @@ export namespace Interfaces {
             players: number;
             playingPlayers: number;
 
-            cpu: Interfaces.CPU;
-            memory: Interfaces.Memory;
-            frameStats: Interfaces.FrameStats | null;
+            cpu: Interfaces.API.CPU;
+            memory: Interfaces.API.Memory;
+            frameStats: Interfaces.API.FrameStats | null;
         }
         
         interface IEventPacket extends IPacket {
@@ -116,7 +60,10 @@ export namespace Interfaces {
             Interfaces.Events.Discord.WebsocketClosed
         )
     }
+}
 
+
+export namespace Interfaces {
     export namespace Events {
         interface IEventPacket {
             type: EventTypes;
@@ -126,24 +73,24 @@ export namespace Interfaces {
         export namespace Track {
             export interface TrackStart extends IEventPacket {
                 type: "TrackStartEvent";
-                track: Track;
+                track: API.Track;
             }
 
             export interface TrackEnd extends IEventPacket {
                 type: "TrackEndEvent";
-                track: Track;
+                track: API.Track;
                 reason: TrackEndReasons;
             }
 
             export interface TrackException extends IEventPacket {
                 type: "TrackExceptionEvent";
-                track: Track;
-                exception: Exception;
+                track: API.Track;
+                exception: API.Exception;
             }
 
             export interface TrackStuck extends IEventPacket {
                 type: "TrackStuckEvent";
-                track: Track;
+                track: API.Track;
                 thresholdMs: number;
             }
         }
@@ -161,56 +108,133 @@ export namespace Interfaces {
             'lavalinkNodeReady': (node: NodeInfo) => void
         }
     }
+}
 
-    interface ConnectWithURL {
-        url: string | URL;
+
+export namespace Interfaces {
+    export namespace Features {
+        interface ConnectWithURL {
+            url: string | URL;
+        }
+    
+        interface ConnectWithHost {
+            host: string;
+            port: number;
+            secure?: boolean;
+        }
+    
+        export interface ConnectionCredentials {
+            username: string;
+            password: string;
+        }
+    
+        export type ConnectionData = ConnectionCredentials & (ConnectWithURL | ConnectWithHost);
+    
+        export interface ConnectionLibraryMethods {
+            onReceivingPacket: (packet: Packets.IncomingPacket) => void;
+        }
+
+        export interface AudioPlayerState {
+            guildId: string;
+            track: string | null;
+            paused: boolean;
+            volume: number;
+            state: Interfaces.API.PlayerState;
+            voice: Interfaces.API.VoiceState;
+            filters: Filters;
+        }
+    
+        export interface Filters<PluginFilters extends Record<string, any> = Record<string, any>> {
+            'volume'?: Filters.Volume;
+            'equalizer'?: Filters.ArrayOfEqualizerBands;
+            'karaoke'?: Filters.Karaoke;
+            'timescale'?: Filters.Timescale;
+            'tremolo'?: Filters.Tremolo;
+            'vibrato'?: Filters.Vibrato;
+            'rotation'?: Filters.Rotation;
+            'distortion'?: Filters.Distortion;
+            'channelMix'?: Filters.ChannelMix;
+            'lowPass'?: Filters.LowPass;
+    
+            pluginFilters?: PluginFilters;
+        }
     }
+}
 
-    interface ConnectWithHost {
-        host: string;
-        port: number;
-        secure?: boolean;
+
+export namespace Interfaces {
+    export namespace API {
+        export interface Track<PluginInfo = unknown, UserData = unknown> {
+            encoded: string;
+            info: TrackInfo;
+            pluginInfo: PluginInfo;
+            userData: UserData;
+        }
+
+        export interface TrackInfo {
+            isrc: string | null;
+            identifier: string;
+            uri: string;
+            title: string;
+            author: string;
+            length: number;
+            position: number;
+            artworkUrl: string;
+            sourceName: string;
+            isStream: number;
+            isSeekable: boolean;
+        }
+
+        export interface PlaylistInfo {
+            name: string;
+            selectedTrack: number;
+        }
+
+        export interface VoiceState {
+            token: string;
+            endpoint: string;
+            sessionId: string;
+        }
+            
+        export interface PlayerState {
+            time: number;
+            position: number;
+            connected: boolean;
+            ping: number;
+        }
+
+        export interface Memory {
+            free: number;
+            used: number;
+            allocated: number;
+            reserved: number;
+        }
+        
+        export interface CPU {
+            cores: number;
+            systemLoad: number;
+            lavalinkLoad: number;
+        }
+        
+        export interface FrameStats {
+            sent: number;
+            dulled: number;
+            deficit: number;
+        }
+
+        export interface Exception {
+            message: string | null;
+            severity: Severity;
+            cause: string;
+        }
     }
+}
 
-    export interface ConnectionCredentials {
-        username: string;
-        password: string;
-    }
 
-    export type ConnectionData = ConnectionCredentials & (ConnectWithURL | ConnectWithHost);
-
-    export interface ConnectionPacketMethods {
-        onReceivingPacket: (packet: Packets.IncomingPacket) => void;
-    }
-
-    export interface AudioPlayerState {
-        guildId: string;
-        track: string | null;
-        paused: boolean;
-        volume: number;
-        state: Interfaces.PlayerState;
-        voice: Interfaces.VoiceState;
-        filters: AudioPlayerFilters;
-    }
-
-    export interface AudioPlayerFilters<PluginFilters extends Record<string, any> = Record<string, any>> {
-        'volume'?: Filters.Volume;
-        'equalizer'?: Filters.ArraysOfEqualizerBands;
-        'karaoke'?: Filters.Karaoke;
-        'timescale'?: Filters.Timescale;
-        'tremolo'?: Filters.Tremolo;
-        'vibrato'?: Filters.Vibrato;
-        'rotation'?: Filters.Rotation;
-        'distortion'?: Filters.Distortion;
-        'channelMix'?: Filters.ChannelMix;
-        'lowPass'?: Filters.LowPass;
-
-        pluginFilters?: PluginFilters;
-    }
-
+export namespace Interfaces {
     export namespace Filters {
         export type Volume = number;
-        export type ArraysOfEqualizerBands = Filters.Equalizer[];
+        export type ArrayOfEqualizerBands = Filters.Equalizer[];
         export interface Equalizer {
             band: number;
             gain: number;
